@@ -5,7 +5,7 @@ function reply(user, rec){
         '我是這裡的logbot，我可以用比你快很多的速度打字。'
     ];
 
-    if(rec.indexOf('whois')!= -1){
+    if(rec[0][0] == 'whois'){
         return speech[Math.round(Math.random()*(speech.length-1))];
     }
 }

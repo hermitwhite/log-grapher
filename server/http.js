@@ -1,12 +1,28 @@
-var app = require('express')(),
+var express = require('express'),
+app = express(),
 sqlite3 = require('sqlite3').verbose(),
 path = require('path'),
 fs = require('fs'),
 config = require('../config').config,
 dbPath = path.join(__dirname, '../',  config.logPath, config.channel.substring(1)),
-port = 1973;
+logStart;
 
-function checkDate(dbPath){  //Return db path
+//Get timestamp of the first day
+(function(){
+    var db = new sqlite3.Database(path.join(dbPath, fs.readdirSync(dbPath).sort()[0]));
+    db.get('SELECT MIN(timestamp) FROM log', function(err, obj){
+        logStart = obj['MIN(timestamp)'];
+    });
+    db.close();
+})();
+
+app.set('views', path.join(__dirname, '../site/template'));
+app.use('/public', express.static(path.join(__dirname, '../', 'site/public')));
+app.engine('html', require('ejs').renderFile);
+app.listen(config.http_port);
+
+//Return db path
+function checkDate(dbPath){
     var date = new Date,
     toyear = date.getFullYear(),
     file = toyear+'.db';
@@ -17,25 +33,40 @@ function checkDate(dbPath){  //Return db path
     }
 }
 
-app.set('views', path.join(__dirname, '../template'));
-app.engine('html', require('ejs').renderFile);
-app.listen(port);
+//Form div
+function formResult(time, name, tag, text){
+    return '<div class="log" data-timestamp="'+time+'" data-tag="'+tag+'"><div class="time"></div><div class="name">'+name+'</div><div class="tag"></div><div class="msg">'+text+'</div></div>\n';
+}
+
+function queryDB(q, callback){
+    var r = '',
+    db = new sqlite3.Database(checkDate(dbPath));
+    db.each(q, function(err, obj){
+        var tag = (obj['tag']||'');
+        obj['name'] = (obj['tag']=='__SYSTEM__') ? '':obj['name'];  //System message won't play name.
+        r += formResult(obj['timestamp'], obj['name'], tag, obj['msg']);
+    }, function(){
+        db.close();
+        callback(r);
+    });
+}
+
+//db.each("SELECT * FROM log ORDER BY rowid DESC LIMIT 20", function(err, obj){
+
+//index
 app.get('/', function(req, res){
     var headline = config.host + ' > ' + config.channel,
-    topmenu = '',
-    d = new Date(),
-    date = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(),
-    result = '',
-    startOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate())/1000|0,
-    db = new sqlite3.Database(checkDate(dbPath));
-    //db.each("SELECT * FROM log ORDER BY rowid DESC LIMIT 20", function(err, obj){
-    db.each("SELECT * FROM log WHERE timestamp >= "+startOfDay, function(err, obj){
-        var time = new Date(obj['timestamp']*1000),
-        tag = (obj['tag']||'');
-        obj['name'] = (obj['tag']=='__SYSTEM__') ? '':obj['name'];  //System message won't play name.
-        result = '    <div class="log"><div class="time">'+ time.getHours()+':'+time.getMinutes()+':'+time.getSeconds() +'</div><div class="name">'+obj['name']+'</div><div class="tag">'+ tag +'</div><div class="msg '+tag+'">'+obj['msg']+'</div></div>\n' + result;
-    }, function(){
-        res.render('index.ejs', {'headline': headline, 'datemenu':date, 'topmenu': topmenu, 'result': result});
-    });
-    db.close();
+    topmenu = '';
+    res.render('index.ejs', {'headline': headline, 'topmenu': topmenu, 'logStart': logStart});
 });
+
+//All day log
+app.get('/method/day/:timestamp', function(req, res){
+    var headline = config.host + ' > ' + config.channel,
+    topmenu = '',
+    startOfDay = req.params.timestamp,
+    endOfDay = parseInt(startOfDay, 10) + 86400;
+    queryDB("SELECT * FROM log WHERE timestamp BETWEEN "+startOfDay+" AND "+endOfDay, function(r){
+        res.render('log.ejs', {'result': r});
+    })
+})

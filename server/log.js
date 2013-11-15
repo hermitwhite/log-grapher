@@ -12,8 +12,8 @@ replyModule = [],
 year = 99999;
 
 //Load all module
-for(var r in config.replyModule){
-    replyModule[config.replyModule[r]] = require(path.join(__dirname, '../prenu', config.replyModule[r], 'module.js'));
+for(var r in config.reply_module){
+    replyModule[config.reply_module[r]] = require(path.join(__dirname, '../prenu', config.reply_module[r], 'module.js'));
 }
 
 sys.puts(sys.inspect(config));
@@ -42,7 +42,7 @@ function writeLog(user, text, tag) {
     }
 }
 
-var client = new irc.Client(config.host, config.port),
+var client = new irc.Client(config.host, config.irc_port),
 inChannel = false;
 
 client.connect(botName, 'guest', 'logbot');
@@ -98,18 +98,23 @@ client.addListener('PRIVMSG', function(prefix, channel, text) {
     //        break;
     //}
     var user = irc.user(prefix);
-    writeLog(user, text);
     if(text.indexOf(botName) != -1){
+        writeLog(user, text);
         var rec = recognizer.recog(user, text);
         for(var r in replyModule){
             var rep = replyModule[r].reply(user, rec);
             if(rep){
-                this.send('PRIVMSG', channel, ':'+rep);
-                writeLog(botName, rep);
+                var self = this;
+                setTimeout(function(){
+                    self.send('PRIVMSG', channel, ':'+rep);
+                    writeLog(botName, rep);
+                }, 1500 );
                 break;
             }
         }
-    };
+    }else{
+        writeLog(user, text);
+    }
 });
 
 repl.start("logbot> ");
