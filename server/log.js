@@ -98,7 +98,7 @@ client.addListener('PRIVMSG', function(prefix, channel, text) {
     //        break;
     //}
     var user = irc.user(prefix);
-    if(text.indexOf(botName) != -1){
+    if(text.indexOf(botName)!=-1){
         writeLog(user, text);
         var rec = recognizer.recog(user, text);
         for(var r in replyModule){
