@@ -70,7 +70,7 @@
                         displayDay = dd;
                         dateMenu();
                         $("#content").html(r);
-                        if($(".log[data-tag!='__SYSTEM__']").length<15){ //Call another day if it's too cold today
+                        if($(".log[data-tag!='__SYSTEM__']").length<15 && logStart*1000 < new Date(displayDay*1000)){ //Call another day if it's too cold today
                             d = new Date(d - 86400000),
                             lm = d.getMonth()+1,
                             ld = d.getDate();
