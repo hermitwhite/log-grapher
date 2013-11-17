@@ -11,7 +11,7 @@ Screenshot
 
 Manual
 ------
-For using this program, node.js must be installed. For installing, in the main install folder(where the "log-grapher" file located):
+For using this program, node.js must be installed. For installing Log Grapher, in the main folder(where the "log-grapher" file located):
 
 1. Type `npm install` and wait the net installing finished.
 2. Copy the `config.template.js` to `config.js` and change settings. Using default bot username could be a major problem since duplicated username will stoping it from login.
