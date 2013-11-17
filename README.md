@@ -5,6 +5,10 @@ A node.js irc bot with sqlite database. Log Grapher contains logbot and a http s
 
 The first code is based on https://github.com/felixge/nodelog.
 
+Screenshot
+----------
+![Log Grapher screnshot](https://raw.github.com/Seiken-2ch/log-grapher/screenshot/screenshot.png)
+
 Manual
 ------
 For using this program, node.js must be installed. For installing, in the main install folder(where the "log-grapher" file located):
