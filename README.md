@@ -18,11 +18,11 @@ Modification
 ------------
 Template files located at /site/template. Since it's aimed for high performance, most things wrote on same file(even CSS and favicon) and it's not easy to modify.
 
-Language recognizing
---------------------
-I have leave the possibility but seems not have enough resources to really develop this. To do this you need two kind of module: sequence contiguous(like n-gram), and recognize-reply. The first module should return an array as `[paragraph_result:[[sequence, word-class]], language:[language-type-array]]`, and be analyzed with all registered replying module.
+Chat Bot
+--------
+The model should acts like a language recognizing system. You need two modules to make it work: sequence-contiguous(could be n-gram or just keywords searching), and recognize-reply. The first module should return an array as `[paragraph_result:[[sequence, word-class]], language:[language-type-array]]`, and be analyzed with all registered replying module. The modules located at /prenu(the lojban word "person"), it's already a pair of "Hello world" modules there.
 
-The modules located at /prenu(the lojban word "person"), it's already a pair of "Hello world" modules there.
+This project seems not to have enough resouces to develop a real language recognizing system, yet.
 
 License
 -------
