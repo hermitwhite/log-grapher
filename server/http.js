@@ -17,6 +17,7 @@ logStart;
 })();
 
 app.set('views', path.join(__dirname, '../site/template'));
+app.set("jsonp callback", true);
 app.use('/public', express.static(path.join(__dirname, '../', 'site/public')));
 app.engine('html', require('ejs').renderFile);
 app.listen(config.http_port);
@@ -56,17 +57,26 @@ function queryDB(q, callback){
 //index
 app.get('/', function(req, res){
     var headline = config.host + ' > ' + config.channel,
-    topmenu = '';
+    topmenu = '';   //todo
     res.render('index.ejs', {'headline': headline, 'topmenu': topmenu, 'logStart': logStart});
 });
 
 //All day log
 app.get('/method/day/:timestamp', function(req, res){
-    var headline = config.host + ' > ' + config.channel,
-    topmenu = '',
-    startOfDay = req.params.timestamp,
+    var startOfDay = req.params.timestamp,
     endOfDay = parseInt(startOfDay, 10) + 86400;
     queryDB("SELECT * FROM log WHERE timestamp BETWEEN "+startOfDay+" AND "+endOfDay, function(r){
         res.render('log.ejs', {'result': r});
     })
 })
+
+//Last lines log with json
+if(config.allow_jsonp){
+    app.get('/method/data/:lines?', function(req, res){
+        var l = parseInt(req.params.lines, 10);
+        if(isNaN(l) || l < 1 || l > 100){l = 10;}
+        queryDB("SELECT * FROM log WHERE tag ISNULL OR tag <> '__SYSTEM__' ORDER BY rowid DESC LIMIT "+l+"", function(r){
+            res.jsonp('log.ejs', {'result': r});
+        })
+    })
+}
