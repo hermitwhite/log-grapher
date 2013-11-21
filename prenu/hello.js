@@ -1,9 +1,18 @@
-function recog(user, text){  //Return db path.
-    if(text.indexOf('誰')!=-1||text.indexOf('什麼人')!=-1||text.indexOf('人認識')!=-1||text.indexOf('who')!=-1||text.indexOf('谁')!=-1||text.indexOf('whois')!=-1){
-        return {paragraph_result:[['whois', 'N']], language:['system']};
-    }else{
-        return {paragraph_result:[[]], language:[]};
+function recog(user, text){
+    var who = ['誰', '哪位', '什麼人', '人認識', '谁', 'who', 'whois'],
+    hi = ['Hi', 'Hello', '嗨'];
+
+    for(var i in who){
+        if(text.indexOf(who[i])!=-1){
+            return {paragraph_result:[['whois', 'N']], language:['hello']};
+        }
     }
+    for(var i in hi){
+        if(text.indexOf(hi[i])!=-1){
+            return {paragraph_result:[['hi', 'N']], language:['hello']};
+        }
+    }
+    return {paragraph_result:[[]], language:[]};
 }
 
 module.exports.recog = recog;

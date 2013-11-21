@@ -87,19 +87,14 @@ client.addListener('DISCONNECT', function() {
 });
 
 client.addListener('PRIVMSG', function(prefix, channel, text) {
-    //switch (text) {
-    //    case '!source':
-    //    case '!src':
-    //        this.send('PRIVMSG', channel, ':Source is here: '+config.srcUrl);
-    //        break;
-    //    case '!logs':
-    //    case '!log':
-    //        this.send('PRIVMSG', channel, ':Logs are here: '+config.logUrl);
-    //        break;
-    //}
-    var user = irc.user(prefix);
+    var user = irc.user(prefix),
+    tag = null;
+    if(text.substring(0, 7)==String.fromCharCode(1)+'ACTION'){
+        tag = '__ACTION__';
+        text = text.substring(7);
+    }
     if(text.indexOf(botName)!=-1){
-        writeLog(user, text);
+        writeLog(user, text, tag);
         var rec = recognizer.recog(user, text);
         for(var r in replyModule){
             var rep = replyModule[r].reply(user, rec);
@@ -113,7 +108,7 @@ client.addListener('PRIVMSG', function(prefix, channel, text) {
             }
         }
     }else{
-        writeLog(user, text);
+        writeLog(user, text, tag);
     }
 });
 

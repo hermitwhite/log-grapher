@@ -43,9 +43,16 @@ function queryDB(q, callback){
     var r = '',
     db = new sqlite3.Database(checkDate(dbPath));
     db.each(q, function(err, obj){
-        var tag = (obj['tag']||'');
-        obj['name'] = (obj['tag']=='__SYSTEM__') ? '':obj['name'];  //System message won't play name.
-        r += formResult(obj['timestamp'], obj['name'], tag, obj['msg']);
+        var name = obj['name'],
+        tag = (obj['tag']||''),
+        msg = obj['msg'] ;
+        if(obj['tag']=='__SYSTEM__'){   //System message won't play name.
+            name = '';
+        }else if(obj['tag']=='__ACTION__'){ //User action reformating.
+            msg = '*' + name + ' ' + msg;
+            name = '';
+        }
+        r += formResult(obj['timestamp'], name, tag, msg);
     }, function(){
         db.close();
         callback(r);
