@@ -27,7 +27,7 @@ function writeLog(user, text, tag) {
     time = Date.now() /1000 |0,
     db, time;
     if (!fs.existsSync(dbDataPath) || year < toyear) {
-        fs.mkdirSync(dbPath, 0755);
+        if (!fs.existsSync(dbPath)) fs.mkdirSync(dbPath, 0755);
         var r = fs.createReadStream(path.join(dbPath, '../', 'empty.db')).pipe(fs.createWriteStream(dbDataPath));
         r.on('close', function(){
             db = new sqlite3.Database(dbDataPath);
@@ -69,7 +69,7 @@ client.addListener('QUIT', function(prefix) {
 });
 
 client.addListener('DISCONNECT', function() {
-    puts('Disconnected, re-connect in 5s');
+    puts('Disconnected, re-connect in 15s');
     writeLog(botName, botName + ' has disconnected', '__SYSTEM__');
     setTimeout(function() {
         puts('Trying to connect again ...');
@@ -82,8 +82,8 @@ client.addListener('DISCONNECT', function() {
                 client.disconnect();
                 client.emit('DISCONNECT', 'timeout');
             }
-        }, 5000);
-    }, 5000);
+        }, 15000);
+    }, 15000);
 });
 
 client.addListener('PRIVMSG', function(prefix, channel, text) {
